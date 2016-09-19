@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: QvxEIp2SdOSOYg8nhbLmydTvWIn+gV3xmxTDNLYELjFC1UFHJ6LBQfWk7Jdo9zZFSq0ok4gxWzKU7e4zNaUeo0VUAIETYpusBhTg9bnUL/A9lczZTDV0uU0qiVYlkl4I6gCryDysnI6FDOI6FtDI09iY27atzL+EF38tCFW57gs/xDHwIFywpTjE+u1Wjy5DIKDUxJeEXzpxaOn+KmrNGaU7XKAT55mRrtt48O74zG8LUtv9tKyMQ0TKNgqF+/gNBf3g+UhEop2TWG0alEqxxM0pB2cuIgirxi1n7OItl4IgsLaopV/mZj/ZQthRX2VNw8TXbXVqNPId/9iAAlpgUR8aDfnLTQeHkh5VNl+LzseBBibRKLewuF8ltfE82wcp+ZeQMW88dKTEww5DV30Wp4EK+z2QFHPVmHI0N7KXDRL1B5t6f3uAsOck1EWGXiJDaSc6GSG32xV7GX6zJqiD7YCQgCKdZ1RBklbzvdlMWJrVK8lsxhqYZwfndeZcFFmod2+NkmxMnRvj108nLAm9S2wnUPsYdkx+YDjdWRjPzS9CFyVKAmvW3zGt4PQBjjw0YuXbCVQ2tqHxoGDSVSR3QMtMIseOfhxYYmc2qL6256iOTQ9WW8B3qmAPMFSvriaJBKt31A12hHvVG+X1UuZvTN8vbX5l1N3pHm/VuW6MyGg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Tale-of-Chloe-An-Episode-in-the-History-of-Beau-Beamish_4494
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
